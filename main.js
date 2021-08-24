@@ -1,5 +1,8 @@
 window.onload = function () {
 
+    var old_element = document.getElementById("rollBtn");
+var new_element = old_element.cloneNode(true);
+old_element.parentNode.replaceChild(new_element, old_element);
     const suits = [
         {
             name: 'Hearts',
@@ -85,22 +88,63 @@ window.onload = function () {
         });
     }
 
-    const sortCards = (arr) => {
-        let wall = arr.length - 1; 
-        while (wall > 0){
-            let index = 0;
-            while (index < wall) {
-              if (arr[index].value > arr[index + 1].value) { 
-                let aux = arr[index]; 
-                arr[index] = arr[index + 1];
-                arr[index + 1] = aux;
-              }
-              index++;
-            }
-            wall--;
+    const renderLogs = (rows) => {
+        const logs = document.getElementById('logsList')
+        const render = []
+
+        console.log(rows,'<--')
+
+        const card = (card,index) => {
+            return `<div class="card">
+            <div class="symbol top-left" style="color: ${card.color}">${card.symbol}</div>
+            <div class="symbol bottom-right" style="color: ${card.color}">${card.symbol}</div>
+            <div class="card-render-value" style="color: ${card.color}">${card.renderValue}</div>
+        </div>`
+            
         }
-        cards = arr        
+        rows.forEach((row,index) => {
+            let logRow = document.createElement('div');
+            const h6 = document.createElement('h4')
+            h6.innerHTML = `${index}.`
+            h6.style.padding= '1em'
+            logRow.appendChild(h6)
+            logRow.classList.add('logRow')
+
+            row.forEach(c => {
+                const appendCard = card(c)
+                logRow.insertAdjacentHTML("beforeend", appendCard);
+            })
+            logs.appendChild(logRow)
+        
+        }) 
+    }
+    const sortCards = () => {
+        console.log((cards))
+        
+              
     };
+    const sortItems = (array) => {
+        let swapped = true;
+        let logs = []
+        do {
+            let asd = [...array]
+                logs.push(asd)
+            swapped = false;
+            
+            for (let j = 0; j < array.length; j++) {
+                
+                if (array[j + 1] && array[j].value > array[j + 1].value) {
+                    
+                    let temp = array[j];
+                    array[j] = array[j + 1];
+                    array[j + 1] = temp;
+                    
+                    swapped = true;
+                }
+            }
+        } while (swapped);
+        return logs;
+    }
 
     const clearCards = () => {
         const container = document.getElementById('deckRender')
@@ -108,9 +152,17 @@ window.onload = function () {
             container.firstChild.remove()
         }
     }
+
+    const clearSorted = () => {
+        const container = document.getElementById('logsList')
+        while (container.firstChild) {
+            container.firstChild.remove()
+        }
+    }
     
     document.getElementById('rollBtn').addEventListener('click', function(){
         clearCards()
+        clearSorted()
         deck = generateDeck()
         cards = generateRandomCards()
         renderCards(cards)
@@ -118,14 +170,16 @@ window.onload = function () {
     })
 
     document.getElementById('sortBtn').addEventListener('click', function(){
-        clearCards()
-        sortCards(cards)
-        renderCards(cards)
+       const logRows = sortItems([...cards])
+       console.log(logRows)
+       renderLogs(logRows)
+        
     })
 
    
     let deck = generateDeck()
     let cards = generateRandomCards()
+    let sortedCards
 
     renderCards(cards)
     
